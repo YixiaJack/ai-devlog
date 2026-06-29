@@ -24,26 +24,45 @@ node ai-devlog.mjs demo
 # → open ai-history-export/index.html in any browser
 ```
 
-## Real usage
+## Auto-discover your real history (Claude Code + Codex)
+
+ai-devlog knows where these CLIs store sessions and finds them for you — no need
+to hunt for file paths:
+
+- **Claude Code** → `~/.claude/projects/<encoded-cwd>/*.jsonl`
+- **Codex CLI** → `~/.codex/sessions/YYYY/MM/DD/rollout-*.jsonl`
+
+```bash
+cd /path/to/your/project
+node /path/to/ai-devlog.mjs discover        # list this project's local sessions
+node /path/to/ai-devlog.mjs auto            # import them all + build the HTML
+node /path/to/ai-devlog.mjs auto --all      # every project on this machine
+node /path/to/ai-devlog.mjs auto --project C:/code/my-app --out ./report
+```
+
+`auto` matches sessions to your project by their recorded `cwd`. Web chats
+(ChatGPT / Claude web) have no local session file, so those stay manual upload.
+
+## Manual import (web exports & others)
 
 ```bash
 node ai-devlog.mjs init
-node ai-devlog.mjs import --source aider       .aider.chat.history.md
-node ai-devlog.mjs import --source claude-code ~/.claude/projects/.../session.jsonl
 node ai-devlog.mjs import --source chatgpt     conversations.json
+node ai-devlog.mjs import --source aider       .aider.chat.history.md
 node ai-devlog.mjs import --source generic     my-export.json
 node ai-devlog.mjs export ./ai-history-export
 ```
 
 ### Supported sources
 
-| `--source`     | Input                                   | Notes |
-|----------------|-----------------------------------------|-------|
-| `aider`        | `.aider.chat.history.md`                | `####` = user turns, rest = assistant |
-| `claude-code`  | Claude Code session `*.jsonl`           | parses text + `tool_use` file edits |
-| `chatgpt`      | ChatGPT export `conversations.json`     | walks the message `mapping` graph |
-| `markdown`     | any markdown with role headings         | `## User` / `### Assistant` … |
-| `generic`      | JSON in ai-devlog's own schema          | full control (timestamps, diffs, commits) |
+| `--source`     | Input                                   | Auto? | Notes |
+|----------------|-----------------------------------------|:-----:|-------|
+| `claude-code`  | Claude Code session `*.jsonl`           |  ✅   | text + `tool_use` file edits; session title from `aiTitle` |
+| `codex`        | Codex `rollout-*.jsonl`                  |  ✅   | messages + `apply_patch` diffs; skips injected instructions |
+| `chatgpt`      | ChatGPT export `conversations.json`     |  —    | walks the message `mapping` graph |
+| `aider`        | `.aider.chat.history.md`                |  —    | `####` = user turns, rest = assistant |
+| `markdown`     | any markdown with role headings         |  —    | `## User` / `### Assistant` … |
+| `generic`      | JSON in ai-devlog's own schema          |  —    | full control (timestamps, diffs, commits) |
 
 ### `generic` schema
 
@@ -83,6 +102,26 @@ inlined) plus `data/devlog.json` for reuse. The page works offline via
 All prompt/response content is HTML-escaped before rendering (prompts can
 contain arbitrary HTML/JS), and links are restricted to `http(s)/mailto/relative`.
 
+## Run it as a command
+
+It's a plain Node script, so there are three ways to use it:
+
+```bash
+# 1. clone + run directly (works today, no install)
+git clone https://github.com/YixiaJack/ai-devlog
+node ai-devlog/ai-devlog.mjs auto
+
+# 2. install globally from the clone → use `ai-devlog` anywhere
+cd ai-devlog && npm install -g .
+ai-devlog auto
+
+# 3. run straight from GitHub without cloning
+npx github:YixiaJack/ai-devlog auto
+```
+
+To get a bare `npx ai-devlog` (no `github:` prefix), publish it to the npm
+registry: `npm login && npm publish`.
+
 ## Privacy
 
 Local-first and read-only: ai-devlog reads files you point it at and writes a
@@ -92,7 +131,8 @@ sharing.
 ## Project layout
 
 ```
-ai-devlog.mjs        CLI (init / import / build / export / demo)
+ai-devlog.mjs        CLI (auto / discover / import / export / demo)
+lib/discover.mjs     find local Claude Code + Codex sessions
 lib/parsers.mjs      source → normalized messages
 lib/tree.mjs         messages → decision tree (+ branch heuristics)
 lib/exporter.mjs     tree → single self-contained HTML
@@ -103,6 +143,6 @@ test/dom-smoke.mjs   headless render smoke test
 
 ## Roadmap
 
-Cursor SQLite reader · Codex CLI transcripts · git correlation (`scan-git`) ·
-AI summarization layer (idea/decision extraction) · MCP server exposing the
-history as queryable resources.
+Cursor SQLite reader · git correlation (`scan-git`, attach diffs/commits by
+time) · AI summarization layer (idea/decision extraction) · lazy-rendered tree
+for very large histories · MCP server exposing the history as queryable resources.

@@ -119,6 +119,15 @@
     tog.addEventListener('click', function (e) { e.stopPropagation(); li.classList.toggle('collapsed'); });
     row.appendChild(tog);
 
+    var isUser = n.type === 'prompt' || (n.meta && n.meta.role === 'user');
+    if (isUser) {
+      row.classList.add('is-user');
+      var mark = document.createElement('span');
+      mark.className = 'user-mark';
+      mark.textContent = '🧑';
+      row.appendChild(mark);
+    }
+
     if (n.type !== 'root') {
       var badge = document.createElement('span');
       badge.className = 'badge c-' + n.type;
@@ -139,6 +148,10 @@
       var ul = document.createElement('ul');
       shownKids.forEach(function (c) { ul.appendChild(nodeEl(c)); });
       li.appendChild(ul);
+      // collapse container nodes by default (big trees stay readable); a live
+      // search expands everything so matches are visible.
+      var COLLAPSE = { session: 1, idea: 1, decision: 1, verification: 1 };
+      if (!query && COLLAPSE[n.type]) li.classList.add('collapsed');
     } else {
       tog.classList.add('empty');
     }
@@ -190,8 +203,19 @@
     }
 
     if (n.content && n.content.trim()) {
-      html += '<div class="section-label">' + (n.type === 'prompt' ? 'Prompt' : n.type === 'response' ? 'AI response' : 'Detail') + '</div>';
-      html += '<div class="md">' + markdown(n.content) + '</div>';
+      var asUser = n.type === 'prompt' || (m.role === 'user');
+      var asAsst = n.type === 'response' || (m.role === 'assistant');
+      if (asUser) {
+        html += '<div class="prompt-card">' +
+          '<div class="prompt-card-head"><span class="avatar">🧑</span> User prompt</div>' +
+          '<div class="md">' + markdown(n.content) + '</div></div>';
+      } else if (asAsst) {
+        html += '<div class="role-head"><span class="avatar">🤖</span> AI response</div>';
+        html += '<div class="md">' + markdown(n.content) + '</div>';
+      } else {
+        html += '<div class="section-label">Detail</div>';
+        html += '<div class="md">' + markdown(n.content) + '</div>';
+      }
     }
 
     if (n.diff) {

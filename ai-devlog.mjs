@@ -6,6 +6,7 @@ import { parseSource, KNOWN_SOURCES } from './lib/parsers.mjs';
 import { buildTree, summarize } from './lib/tree.mjs';
 import { exportHtml } from './lib/exporter.mjs';
 import { sampleStore } from './lib/sample.mjs';
+import { discover } from './lib/discover.mjs';
 
 const STORE = '.ai-devlog/store.json';
 
@@ -39,6 +40,9 @@ function help() {
   console.log(`ai-devlog — AI coding chats → decision-tree HTML
 
 Usage:
+  ai-devlog auto [--project <dir>] [--all] [--out <dir>]
+                                               auto-find Claude Code + Codex sessions, import, export
+  ai-devlog discover [--project <dir>] [--all] list local sessions without importing
   ai-devlog init
   ai-devlog import --source <type> <file>     sources: ${KNOWN_SOURCES.join(', ')}
   ai-devlog build
@@ -46,10 +50,12 @@ Usage:
   ai-devlog demo [outDir]                      generate sample data + export
 
 Examples:
-  ai-devlog import --source aider .aider.chat.history.md
-  ai-devlog import --source claude-code ~/.claude/projects/.../session.jsonl
-  ai-devlog import --source chatgpt conversations.json
+  ai-devlog auto                               # this project's Claude Code + Codex history
+  ai-devlog auto --all                         # every project on this machine
+  ai-devlog import --source chatgpt conversations.json   # web exports stay manual
   ai-devlog export ./ai-history-export
+
+--project defaults to the current directory. --all ignores project matching.
 `);
 }
 
@@ -85,6 +91,51 @@ try {
       if (!store.messages.length) { console.error('No messages. Run `import` first, or try `ai-devlog demo`.'); process.exit(1); }
       const file = exportHtml(payloadFrom(store), out);
       console.log(`Exported → ${file}`);
+      break;
+    }
+    case 'discover': {
+      const project = f.project || process.cwd();
+      const all = !!f.all;
+      const { claudeCode, codex } = discover({ project, all });
+      console.log(`Scanned for: ${all ? '(all projects)' : project}\n`);
+      const list = (label, arr) => {
+        console.log(`${label}: ${arr.length} session(s)`);
+        arr.slice(0, 25).forEach((s) => console.log(`  • ${s.title || path.basename(s.file)}${all && s.cwd ? '   [' + s.cwd + ']' : ''}`));
+        if (arr.length > 25) console.log(`  … and ${arr.length - 25} more`);
+      };
+      list('Claude Code', claudeCode);
+      list('Codex', codex);
+      if (!claudeCode.length && !codex.length) console.log('\nNothing found. Try --all, or import web exports manually.');
+      else console.log(`\nRun \`ai-devlog auto${all ? ' --all' : ''}\` to build the HTML.`);
+      break;
+    }
+    case 'auto': {
+      const project = f.project || process.cwd();
+      const all = !!f.all;
+      const out = f.out || rest[0] || './ai-history-export';
+      const { claudeCode, codex } = discover({ project, all });
+      const found = [...claudeCode, ...codex];
+      if (!found.length) {
+        console.error(`No Claude Code / Codex sessions found${all ? '' : ` for ${project}`}. Try --all, or import manually.`);
+        process.exit(1);
+      }
+      const store = { project: { name: path.basename(project), repoRoot: project }, messages: [] };
+      let imported = 0, skipped = 0;
+      for (const s of found) {
+        try {
+          const parsed = parseSource(s.source, s.file);
+          store.messages.push(...parsed.messages);
+          imported += parsed.messages.length;
+          if (parsed.project?.repoRoot && !store.project.repoRoot) store.project.repoRoot = parsed.project.repoRoot;
+          if (parsed.project?.branch && !store.project.branch) store.project.branch = parsed.project.branch;
+        } catch (e) { skipped++; }
+      }
+      saveStore(store);
+      const payload = payloadFrom(store);
+      const file = exportHtml(payload, out);
+      console.log(`Found ${claudeCode.length} Claude Code + ${codex.length} Codex session(s), ${imported} messages${skipped ? ` (${skipped} skipped)` : ''}.`);
+      console.log(`Exported → ${file}`);
+      console.log(`Open it: ${path.resolve(file)}`);
       break;
     }
     case 'demo': {
