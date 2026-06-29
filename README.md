@@ -54,10 +54,11 @@ prompt's first line — which stays shallow. With the LLM step, the model
 under the earlier idea it relates to **across conversations and time** (e.g.
 founder-contact, homepage copy, and slides all land under a "Marketing"
 category), gives each a concise **bilingual (EN + 中) title phrased as an idea**
-(not a command), and extracts the **genuine design decisions / insights the AI
-introduced** (💡 their own nodes) — using an explicit include/exclude codebook
-so it captures real ideas (e.g. "header auth instead of query string"), not
-execution steps or metrics.
+(not a command), and extracts the **insights the AI contributed** (💡 their own
+nodes) — design decisions, **findings from its research / web searches**, and
+recommendations — using an include/exclude codebook (an insight answers "what
+does this mean / why it matters", not "what was done"). The summarizer reads the
+head **and tail** of each response so conclusions/recommendations aren't missed.
 
 ```bash
 node ai-devlog.mjs auto --git --summarize          # discover + git + LLM arrangement, one shot
