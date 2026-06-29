@@ -117,7 +117,7 @@
 
   // ---------- render ----------
   var KIND = { root: 'project', category: 'category', commits: 'commits', idea: 'goal', refine: 'refine',
-    fix: 'fix', question: 'question', decision: 'pivot', verification: 'test', 'ai-idea': 'ai idea' };
+    fix: 'fix', question: 'question', decision: 'pivot', verification: 'test', 'ai-idea': 'insight' };
 
   function render() {
     layout();
@@ -224,7 +224,7 @@
       '</div>';
 
     if (n.type === 'ai-idea') {
-      h += '<p class="empty-hint">An idea the AI proposed while working on “' + esc(d.context || '') + '”.</p>';
+      h += '<p class="empty-hint">A design decision / insight the AI introduced while working on “' + esc(d.context || '') + '”.</p>';
     }
     if (n.type === 'category') {
       h += '<p class="empty-hint">Category · ' + esc(n.summary || '') + '. Expand to see the ideas under it.</p>';
@@ -282,11 +282,11 @@
   document.getElementById('stats').innerHTML =
     '<span><b>' + (t.category || 0) + '</b> categories</span>' +
     '<span><b>' + ideaCount() + '</b> ideas</span>' +
-    '<span><b>' + (t['ai-idea'] || 0) + '</b> AI ideas</span>';
+    '<span><b>' + (t['ai-idea'] || 0) + '</b> AI insights</span>';
 
   var legend = document.getElementById('legend');
   var LG = [['category', 'category'], ['idea', 'goal'], ['refine', 'refine'], ['fix', 'fix'],
-    ['question', 'question'], ['decision', 'pivot'], ['verification', 'test'], ['ai-idea', 'AI idea']];
+    ['question', 'question'], ['decision', 'pivot'], ['verification', 'test'], ['ai-idea', 'AI insight']];
   legend.innerHTML = LG.filter(function (x) { return t[x[0]]; }).map(function (x) {
     return '<span class="item"><span class="sw" style="background:var(--t-' + x[0] + ')"></span>' + x[1] + '</span>';
   }).join('') + '<span class="item hint">drag to pan · scroll to zoom · click a node</span>';

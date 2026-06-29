@@ -53,8 +53,10 @@ prompt's first line — which stays shallow. With the LLM step, the model
 **classifies** the whole project into 3–7 **categories**, then nests each idea
 under the earlier idea it relates to **across conversations and time** (e.g.
 founder-contact, homepage copy, and slides all land under a "Marketing"
-category), gives each a concise title, and extracts **ideas the AI proposed**
-(💡 their own nodes).
+category), gives each a concise title, and extracts the **genuine design
+decisions / insights the AI introduced** (💡 their own nodes) — using an
+explicit include/exclude codebook so it captures real ideas (e.g. "header auth
+instead of query string"), not execution steps or metrics.
 
 ```bash
 node ai-devlog.mjs auto --git --summarize          # discover + git + LLM arrangement, one shot
