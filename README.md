@@ -161,11 +161,12 @@ as `detail` — shown when you click the node, not as separate tree nodes. With
 inlined) plus `data/devlog.json` for reuse. The page works offline via
 `file://` — nothing is uploaded. The whole UI is the **idea tree**:
 
-- **Canvas** — a pan/zoom node-link tree (drag to pan, scroll to zoom). Nodes
-  are color-coded ideas; user-originated ideas are marked 🧑, AI insights 💡.
-  Click a node's `+N` to expand its sub-ideas.
+- **Radial canvas** — a pan/zoom tree that fans out in **all directions** from
+  the project at the center (drag to pan, scroll to zoom). Nodes are color-coded
+  ideas; AI insights are marked 💡. Click a node's `+N` to expand its sub-ideas.
 - **Language toggle** (EN ↔ 中) — every idea, category and insight is labeled in
   both English and Chinese, so the whole tree switches language in one click.
+- **Light / dark mode** toggle.
 - **Click a node** → a side drawer reveals the full **prompt** and **what the AI
   did**: its answer (rendered markdown + code), files changed, unified diff
   (red/green), and the correlated git commits.

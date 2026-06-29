@@ -103,16 +103,35 @@
   }
   function hasHidden(n) { return !showSet && n._collapsed && n.children && n.children.length; }
 
-  // ---------- layout (left-to-right tidy tree) ----------
+  // ---------- layout (radial tree — expands in all directions) ----------
   function layout() {
-    var leaf = 0;
-    (function place(n, depth) {
-      n._x = depth * COL;
-      var kids = childrenToShow(n);
-      n._kids = kids;
-      if (!kids.length) { n._y = leaf * ROW; leaf++; }
-      else { kids.forEach(function (k) { place(k, depth + 1); }); n._y = (kids[0]._y + kids[kids.length - 1]._y) / 2; }
+    var leaf = 0, maxDepth = 0, countAt = [];
+    (function order(n, depth) {
+      n._depth = depth; if (depth > maxDepth) maxDepth = depth;
+      countAt[depth] = (countAt[depth] || 0) + 1;
+      var kids = childrenToShow(n); n._kids = kids;
+      if (!kids.length) { n._leaf = leaf++; }
+      else kids.forEach(function (k) { order(k, depth + 1); });
     })(tree, 0);
+    var totalLeaves = Math.max(leaf, 1);
+    // leaves get equal slices of the full circle; a parent sits at the midpoint
+    // of its children's angles
+    (function ang(n) {
+      if (!n._kids.length) n._ang = (n._leaf + 0.5) / totalLeaves * 2 * Math.PI;
+      else { n._kids.forEach(ang); n._ang = (n._kids[0]._ang + n._kids[n._kids.length - 1]._ang) / 2; }
+    })(tree);
+    // each ring's radius is big enough to fit that depth's node count
+    var ring = [0];
+    for (var d = 1; d <= maxDepth; d++) {
+      var need = (countAt[d] || 1) * (NODE_W + 36) / (2 * Math.PI);
+      ring[d] = Math.max(ring[d - 1] + 170, need);
+    }
+    (function pos(n) {
+      var r = ring[n._depth] || 0;
+      n._x = Math.cos(n._ang) * r - NODE_W / 2;
+      n._y = Math.sin(n._ang) * r - NODE_H / 2;
+      (n._kids || []).forEach(pos);
+    })(tree);
   }
   function visibleNodes() {
     var out = [];
@@ -132,10 +151,9 @@
 
     nodes.forEach(function (n) {
       (n._kids || []).forEach(function (c) {
-        var x1 = n._x + NODE_W, y1 = n._y + NODE_H / 2, x2 = c._x, y2 = c._y + NODE_H / 2;
-        var mx = (x1 + x2) / 2;
+        var x1 = n._x + NODE_W / 2, y1 = n._y + NODE_H / 2, x2 = c._x + NODE_W / 2, y2 = c._y + NODE_H / 2;
         var path = document.createElementNS(SVG, 'path');
-        path.setAttribute('d', 'M' + x1 + ',' + y1 + ' C' + mx + ',' + y1 + ' ' + mx + ',' + y2 + ' ' + x2 + ',' + y2);
+        path.setAttribute('d', 'M' + x1 + ',' + y1 + ' L' + x2 + ',' + y2);
         path.setAttribute('class', 'link' + (c.id === selectedId || n.id === selectedId ? ' hl' : ''));
         linksG.appendChild(path);
       });
@@ -154,7 +172,7 @@
       fo.innerHTML =
         '<div class="' + cls + '" data-id="' + n.id + '">' +
           '<span class="dot"></span>' +
-          '<div class="label">' + (isUser ? '🧑 ' : (n.type === 'ai-idea' ? '💡 ' : '')) + esc(labelFor(n)) + '</div>' +
+          '<div class="label">' + (n.type === 'ai-idea' ? '💡 ' : '') + esc(labelFor(n)) + '</div>' +
           '<div class="badges"><span class="kind">' + esc(KIND[n.type] || n.type) + '</span>' + toggle + '</div>' +
         '</div>';
       nodesG.appendChild(fo);
@@ -221,7 +239,7 @@
     var d = n.detail || {}, m = n.meta || {};
     var h = '<div class="t-' + n.type + '">';
     h += '<div class="d-kind">' + esc(KIND[n.type] || n.type) + '</div>';
-    h += '<div class="d-title">' + (TURN[n.type] ? '🧑 ' : n.type === 'ai-idea' ? '💡 ' : '') + esc(labelFor(n)) + '</div>';
+    h += '<div class="d-title">' + (n.type === 'ai-idea' ? '💡 ' : '') + esc(labelFor(n)) + '</div>';
     h += '<div class="chips">' +
       chip('source', m.source) + chip('model', m.model) + chip('status', m.status) +
       chip('branch', m.branch) + chip('files', d.files) + chip('commits', d.commits) +
@@ -239,7 +257,7 @@
       h += '<div class="section">Commits</div>' + d.unlinkedCommits.map(commitRow).join('');
     }
     if (d.prompt && d.prompt.trim()) {
-      h += '<div class="prompt-card"><div class="head">🧑 User prompt</div><div class="md">' + markdown(d.prompt) + '</div></div>';
+      h += '<div class="prompt-card"><div class="head">User prompt</div><div class="md">' + markdown(d.prompt) + '</div></div>';
     }
     if (d.response && d.response.trim()) {
       h += '<div class="section">🤖 What the AI did</div><div class="md">' + markdown(d.response) + '</div>';
@@ -308,6 +326,13 @@
     if (selectedId) select(selectedId);
   });
   setLangLabel();
+
+  // ---------- light / dark ----------
+  var themeBtn = document.getElementById('theme');
+  themeBtn.addEventListener('click', function () {
+    var dark = document.body.classList.toggle('dark');
+    themeBtn.textContent = dark ? '☀' : '🌙';
+  });
 
   // ---------- go ----------
   render(); fitView();
