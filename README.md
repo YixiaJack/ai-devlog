@@ -50,11 +50,11 @@ node /path/to/ai-devlog.mjs auto --project C:/code/my-app --out ./report
 
 Without an LLM, ideas nest by a keyword heuristic and labels come from the
 prompt's first line — which stays shallow. With the LLM step, the model
-arranges the **whole project's** ideas (in time order) into **one tree**: it
-picks each idea's *parent* by meaning, so related ideas nest under one another
-**even across different conversations and times** (e.g. founder-contact,
-homepage copy, and slides all land under one "marketing" theme), gives each a
-concise title, and extracts **ideas the AI proposed** (💡 their own nodes).
+**classifies** the whole project into 3–7 **categories**, then nests each idea
+under the earlier idea it relates to **across conversations and time** (e.g.
+founder-contact, homepage copy, and slides all land under a "Marketing"
+category), gives each a concise title, and extracts **ideas the AI proposed**
+(💡 their own nodes).
 
 ```bash
 node ai-devlog.mjs auto --git --summarize          # discover + git + LLM arrangement, one shot
@@ -139,11 +139,13 @@ Each real prompt becomes one idea node, classified
 as a `idea` (goal), `refine`, `fix`, `question`, `verification`, or `decision`
 (pivot); ideas the AI proposed become `ai-idea` nodes.
 
-**Sessions are not a layer.** The whole project becomes **one tree** ordered by
-structure + time — ideas from different conversations interleave by when they
-happened and nest by what they relate to (not grouped by which chat they came
-from). Placement is LLM-decided when you run `summarize` (deep, cross-session),
-otherwise a chronological keyword heuristic.
+**Sessions are not a layer.** The whole project becomes **one tree**. With the
+LLM step, it's organized as **a few categories → ideas → sub-ideas**:
+classification first (3–7 top-level categories, per mind-map cognitive-load
+research), then each idea nested under the earlier idea it relates to — across
+conversations and time. Without the LLM, a chronological keyword heuristic is
+used. The viewer opens expanded to ~3 levels (project → categories → ideas) so
+the structure is visible at a glance; click a node's `+N` to drill deeper.
 
 **The tree is ideas only.** Each idea node carries the full prompt and all the
 assistant work that followed it (merged into one answer + the files/diffs/commits)

@@ -66,11 +66,13 @@
   // ---------- index ----------
   var byId = {};
   var TURN = { idea: 1, refine: 1, fix: 1, question: 1, decision: 1, verification: 1 };
+  // Open showing project → categories → top-level ideas; collapse deeper so the
+  // structure is visible at a glance (mind-map best practice: ~3 levels).
+  var COLLAPSE_DEPTH = 2;
   (function walk(n, parent, depth) {
-    n._parent = parent;
+    n._parent = parent; n._depth = depth;
     byId[n.id] = n;
-    // collapse "turn" nodes by default so a big tree opens readable
-    n._collapsed = !!(TURN[n.type] && n.children && n.children.length);
+    n._collapsed = depth >= COLLAPSE_DEPTH && n.children && n.children.length;
     (n.children || []).forEach(function (c) { walk(c, n, depth + 1); });
   })(tree, null, 0);
 
@@ -114,8 +116,8 @@
   }
 
   // ---------- render ----------
-  var KIND = { root: 'project', commits: 'commits', idea: 'goal', refine: 'refine', fix: 'fix',
-    question: 'question', decision: 'pivot', verification: 'test', 'ai-idea': 'ai idea' };
+  var KIND = { root: 'project', category: 'category', commits: 'commits', idea: 'goal', refine: 'refine',
+    fix: 'fix', question: 'question', decision: 'pivot', verification: 'test', 'ai-idea': 'ai idea' };
 
   function render() {
     layout();
@@ -224,6 +226,9 @@
     if (n.type === 'ai-idea') {
       h += '<p class="empty-hint">An idea the AI proposed while working on “' + esc(d.context || '') + '”.</p>';
     }
+    if (n.type === 'category') {
+      h += '<p class="empty-hint">Category · ' + esc(n.summary || '') + '. Expand to see the ideas under it.</p>';
+    }
     if (n.type === 'commits' && d.unlinkedCommits) {
       h += '<p class="empty-hint">' + esc(n.summary || '') + '</p>';
       h += '<div class="section">Commits</div>' + d.unlinkedCommits.map(commitRow).join('');
@@ -241,7 +246,7 @@
     if (d.commits && d.commits.length) {
       h += '<div class="section">Commits</div>' + d.commits.map(commitRow).join('');
     }
-    if (!d.prompt && !d.response && n.type !== 'commits' && n.type !== 'ai-idea') {
+    if (!d.prompt && !d.response && n.type !== 'commits' && n.type !== 'ai-idea' && n.type !== 'category') {
       h += '<p class="empty-hint">' + ((n.children || []).length) + ' child idea(s).</p>';
     }
     h += '</div>';
@@ -275,13 +280,13 @@
   var t = stats.types || {};
   function ideaCount() { return (t.idea || 0) + (t.refine || 0) + (t.fix || 0) + (t.question || 0) + (t.decision || 0) + (t.verification || 0); }
   document.getElementById('stats').innerHTML =
+    '<span><b>' + (t.category || 0) + '</b> categories</span>' +
     '<span><b>' + ideaCount() + '</b> ideas</span>' +
-    '<span><b>' + (t['ai-idea'] || 0) + '</b> AI ideas</span>' +
-    '<span><b>' + Object.keys(stats.sources || {}).length + '</b> sources</span>';
+    '<span><b>' + (t['ai-idea'] || 0) + '</b> AI ideas</span>';
 
   var legend = document.getElementById('legend');
-  var LG = [['idea', 'goal'], ['refine', 'refine'], ['fix', 'fix'], ['question', 'question'],
-    ['decision', 'pivot'], ['verification', 'test'], ['ai-idea', 'AI idea']];
+  var LG = [['category', 'category'], ['idea', 'goal'], ['refine', 'refine'], ['fix', 'fix'],
+    ['question', 'question'], ['decision', 'pivot'], ['verification', 'test'], ['ai-idea', 'AI idea']];
   legend.innerHTML = LG.filter(function (x) { return t[x[0]]; }).map(function (x) {
     return '<span class="item"><span class="sw" style="background:var(--t-' + x[0] + ')"></span>' + x[1] + '</span>';
   }).join('') + '<span class="item hint">drag to pan · scroll to zoom · click a node</span>';
