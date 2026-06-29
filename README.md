@@ -43,6 +43,26 @@ node /path/to/ai-devlog.mjs auto --project C:/code/my-app --out ./report
 `auto` matches sessions to your project by their recorded `cwd`. Web chats
 (ChatGPT / Claude web) have no local session file, so those stay manual upload.
 
+## Correlate git commits (the "why" behind each diff)
+
+Point ai-devlog at the project's git history and it attaches each commit — with
+its diff — to the **nearest preceding AI turn**, so a prompt now links straight
+to the code that landed:
+
+```bash
+node ai-devlog.mjs auto --git                       # discover chats + correlate commits, in one shot
+# or, on an existing store:
+node ai-devlog.mjs scan-git --since "30 days ago"
+node ai-devlog.mjs export
+```
+
+- Matching uses commit time vs. message time, within a window (default **12h**,
+  override with `--window <hours>`).
+- Commits with no nearby chat are grouped under an **"Unlinked commits"** node,
+  so nothing is silently dropped.
+- Diffs are captured per commit (bulk commits touching >30 files keep the file
+  list but skip the patch, to keep the HTML lean).
+
 ## Manual import (web exports & others)
 
 ```bash
@@ -131,10 +151,11 @@ sharing.
 ## Project layout
 
 ```
-ai-devlog.mjs        CLI (auto / discover / import / export / demo)
+ai-devlog.mjs        CLI (auto / discover / scan-git / import / export / demo)
 lib/discover.mjs     find local Claude Code + Codex sessions
+lib/git.mjs          read git commits/diffs for correlation
 lib/parsers.mjs      source → normalized messages
-lib/tree.mjs         messages → decision tree (+ branch heuristics)
+lib/tree.mjs         messages → decision tree (+ branch & commit correlation)
 lib/exporter.mjs     tree → single self-contained HTML
 lib/sample.mjs       demo data
 template/            index.html · style.css · app.js (inlined on export)
@@ -143,6 +164,6 @@ test/dom-smoke.mjs   headless render smoke test
 
 ## Roadmap
 
-Cursor SQLite reader · git correlation (`scan-git`, attach diffs/commits by
-time) · AI summarization layer (idea/decision extraction) · lazy-rendered tree
-for very large histories · MCP server exposing the history as queryable resources.
+Cursor SQLite reader · AI summarization layer (idea/decision extraction) ·
+lazy-rendered tree for very large histories · MCP server exposing the history
+as queryable resources.

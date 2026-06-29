@@ -7,6 +7,7 @@ import { buildTree, summarize } from './lib/tree.mjs';
 import { exportHtml } from './lib/exporter.mjs';
 import { sampleStore } from './lib/sample.mjs';
 import { discover } from './lib/discover.mjs';
+import { gitCommits, isGitRepo } from './lib/git.mjs';
 
 const STORE = '.ai-devlog/store.json';
 
@@ -40,9 +41,11 @@ function help() {
   console.log(`ai-devlog — AI coding chats → decision-tree HTML
 
 Usage:
-  ai-devlog auto [--project <dir>] [--all] [--out <dir>]
+  ai-devlog auto [--project <dir>] [--all] [--git] [--out <dir>]
                                                auto-find Claude Code + Codex sessions, import, export
   ai-devlog discover [--project <dir>] [--all] list local sessions without importing
+  ai-devlog scan-git [--project <dir>] [--since <date>] [--window <hours>]
+                                               attach git commits/diffs to turns by time
   ai-devlog init
   ai-devlog import --source <type> <file>     sources: ${KNOWN_SOURCES.join(', ')}
   ai-devlog build
@@ -50,12 +53,13 @@ Usage:
   ai-devlog demo [outDir]                      generate sample data + export
 
 Examples:
-  ai-devlog auto                               # this project's Claude Code + Codex history
+  ai-devlog auto --git                         # chat history + correlated git commits
   ai-devlog auto --all                         # every project on this machine
   ai-devlog import --source chatgpt conversations.json   # web exports stay manual
-  ai-devlog export ./ai-history-export
+  ai-devlog scan-git --since "30 days ago"     # then: ai-devlog export
 
 --project defaults to the current directory. --all ignores project matching.
+--git correlates each commit to the nearest preceding AI turn (default window 12h).
 `);
 }
 
@@ -77,6 +81,17 @@ try {
       store.messages.push(...parsed.messages);
       saveStore(store);
       console.log(`Imported ${parsed.messages.length} messages from ${f.source} (${path.basename(file)}). Total: ${store.messages.length}`);
+      break;
+    }
+    case 'scan-git': {
+      const store = loadStore();
+      const repo = f.project || store.project.repoRoot || process.cwd();
+      if (!isGitRepo(repo)) { console.error(`Not a git repo: ${repo}`); process.exit(1); }
+      store.commits = gitCommits(repo, { since: f.since });
+      if (!store.project.repoRoot) store.project.repoRoot = repo;
+      if (f.window) store.gitWindowHours = Number(f.window);
+      saveStore(store);
+      console.log(`Scanned ${store.commits.length} commits from ${repo}${f.since ? ` (since ${f.since})` : ''}. Run \`export\` to build.`);
       break;
     }
     case 'build': {
@@ -130,10 +145,18 @@ try {
           if (parsed.project?.branch && !store.project.branch) store.project.branch = parsed.project.branch;
         } catch (e) { skipped++; }
       }
+      let gitMsg = '';
+      if (f.git) {
+        const repo = store.project.repoRoot || project;
+        if (isGitRepo(repo)) {
+          store.commits = gitCommits(repo, { since: f.since });
+          gitMsg = `, ${store.commits.length} git commits`;
+        } else gitMsg = ', (no git repo found)';
+      }
       saveStore(store);
       const payload = payloadFrom(store);
       const file = exportHtml(payload, out);
-      console.log(`Found ${claudeCode.length} Claude Code + ${codex.length} Codex session(s), ${imported} messages${skipped ? ` (${skipped} skipped)` : ''}.`);
+      console.log(`Found ${claudeCode.length} Claude Code + ${codex.length} Codex session(s), ${imported} messages${gitMsg}${skipped ? ` (${skipped} skipped)` : ''}.`);
       console.log(`Exported → ${file}`);
       console.log(`Open it: ${path.resolve(file)}`);
       break;
