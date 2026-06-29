@@ -3,11 +3,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { parseSource, KNOWN_SOURCES } from './lib/parsers.mjs';
-import { buildTree, summarize } from './lib/tree.mjs';
+import { buildTree, summarize as summarizeStats } from './lib/tree.mjs';
 import { exportHtml } from './lib/exporter.mjs';
 import { sampleStore } from './lib/sample.mjs';
 import { discover } from './lib/discover.mjs';
 import { gitCommits, isGitRepo } from './lib/git.mjs';
+import { summarize, DEFAULT_MODEL } from './lib/summarize.mjs';
 
 const STORE = '.ai-devlog/store.json';
 
@@ -21,7 +22,7 @@ function saveStore(s) {
 }
 function payloadFrom(store) {
   const tree = buildTree(store);
-  return { tree, stats: summarize(tree), generatedFrom: store.project };
+  return { tree, stats: summarizeStats(tree), generatedFrom: store.project };
 }
 
 // crude flag parser: --key value
@@ -46,6 +47,8 @@ Usage:
   ai-devlog discover [--project <dir>] [--all] list local sessions without importing
   ai-devlog scan-git [--project <dir>] [--since <date>] [--window <hours>]
                                                attach git commits/diffs to turns by time
+  ai-devlog summarize [--model <id>] [--limit N]
+                                               LLM idea labels + AI-proposed ideas (needs ANTHROPIC_API_KEY)
   ai-devlog init
   ai-devlog import --source <type> <file>     sources: ${KNOWN_SOURCES.join(', ')}
   ai-devlog build
@@ -96,8 +99,20 @@ try {
     }
     case 'build': {
       const store = loadStore();
-      const stats = summarize(buildTree(store));
+      const stats = summarizeStats(buildTree(store));
       console.log(`Built tree: ${stats.count} nodes`, stats.types);
+      break;
+    }
+    case 'summarize': {
+      const store = loadStore();
+      if (!store.messages.length) { console.error('No messages. Import first.'); process.exit(1); }
+      const apiKey = process.env.ANTHROPIC_API_KEY;
+      if (!apiKey) { console.error('Set ANTHROPIC_API_KEY to use LLM summarization.'); process.exit(1); }
+      const model = f.model || DEFAULT_MODEL;
+      console.log(`Summarizing with ${model}…`);
+      await summarize(store, { apiKey, model, limit: f.limit ? Number(f.limit) : 0, log: (s) => console.log(s) });
+      saveStore(store);
+      console.log(`Done. ${Object.keys(store.summaries).length} turns summarized. Run \`export\`.`);
       break;
     }
     case 'export': {
@@ -152,6 +167,11 @@ try {
           store.commits = gitCommits(repo, { since: f.since });
           gitMsg = `, ${store.commits.length} git commits`;
         } else gitMsg = ', (no git repo found)';
+      }
+      if (f.summarize) {
+        const apiKey = process.env.ANTHROPIC_API_KEY;
+        if (!apiKey) console.error('  --summarize ignored: ANTHROPIC_API_KEY not set');
+        else { console.log('  summarizing ideas with LLM…'); await summarize(store, { apiKey, model: f.model || DEFAULT_MODEL, log: (s) => console.log(s) }); }
       }
       saveStore(store);
       const payload = payloadFrom(store);

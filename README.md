@@ -1,11 +1,14 @@
 # ai-devlog
 
-**Turn AI coding chats (IDE / CLI / Web) into an auditable decision tree — exported as a clean, self-contained HTML document.**
+**Turn AI coding chats (IDE / CLI / Web) into an interactive idea tree — exported as a clean, self-contained HTML document.**
 
 Not another chat exporter. ai-devlog aggregates conversations from multiple
-sources, then organizes them into **idea → prompt → AI response → implementation
-→ diff → commit**, with course-corrections shown as **branches**. The output is
-a single offline HTML file you can search, expand, and share.
+sources and distills them into a **tree of ideas**: each node is one real idea
+(a goal, refinement, fix, question, pivot, or an idea the AI proposed).
+**Click a node** to reveal the full prompt and exactly what the AI did in
+response (its answer, the files it changed, diffs, and the git commits that
+landed). Optionally, an LLM labels each idea node concisely. The output is a
+single offline HTML file you can pan, zoom, search, and share.
 
 > "把 AI 编程聊天变成项目的可审计决策树：每个 prompt、每次分叉、每个实现、每个 diff 都能追溯。"
 
@@ -42,6 +45,25 @@ node /path/to/ai-devlog.mjs auto --project C:/code/my-app --out ./report
 
 `auto` matches sessions to your project by their recorded `cwd`. Web chats
 (ChatGPT / Claude web) have no local session file, so those stay manual upload.
+
+## LLM idea labels (optional)
+
+By default, idea node labels come from a heuristic (the first line of the
+prompt). With an API key, an LLM rewrites each into a concise idea and also
+extracts **ideas the AI proposed** (which become their own nodes):
+
+```bash
+export ANTHROPIC_API_KEY=sk-ant-…
+node ai-devlog.mjs auto --git --summarize          # discover + git + LLM labels, one shot
+# or on an existing store:
+node ai-devlog.mjs summarize --model claude-haiku-4-5
+node ai-devlog.mjs export
+```
+
+Calls the Claude Messages API directly (no SDK, stays dependency-free), batched
+and cached in the store so re-runs only label new turns. Default model is Haiku
+(cheap for bulk summarizing); override with `--model`. This is the only step
+that sends data off your machine — everything else is local.
 
 ## Correlate git commits (the "why" behind each diff)
 
@@ -119,27 +141,33 @@ Each real prompt is then classified by its **role in developing an idea** —
 | `question` | asks rather than directs (`why…?`, `为什么`) | nested under the goal |
 | `verification` | asks to test/build/lint | nested under the goal |
 | `decision` | a pivot (`instead`, `actually`, `换个方案`, `改成`) | **branches off** the previous turn |
+| `ai-idea` | an idea the AI proposed (LLM-extracted) | nested under the turn it came from |
 
-All the assistant work between two prompts is merged into **one** `response` +
-**one** `implementation` (files / code / diff), so a goal shows its own work
-*and* the follow-up refinements that developed it. With `--git`, the real
-commit + diff is attached too (see above).
+**The tree is ideas only.** Each idea node carries the full prompt and all the
+assistant work that followed it (merged into one answer + the files/diffs/commits)
+as `detail` — shown when you click the node, not as separate tree nodes. With
+`--git`, the real commit + diff is folded into the nearest idea's detail.
 
 ## The HTML output
 
 `export` writes a **single self-contained `index.html`** (CSS + JS + data all
 inlined) plus `data/devlog.json` for reuse. The page works offline via
-`file://` — nothing is uploaded.
+`file://` — nothing is uploaded. The whole UI is the **idea tree**:
 
-- **Left** — filter by node type and source.
-- **Center** — the collapsible idea-development tree, color-coded by node type;
-  user prompts are marked 🧑 and emphasized.
-- **Right** — full prompt / response (rendered markdown), code blocks, unified
-  diff (red/green), files and commits.
-- **Top** — full-text search across prompts, ideas, and code.
+- **Canvas** — a pan/zoom node-link tree (drag to pan, scroll to zoom). Nodes
+  are color-coded ideas; user-originated ideas are marked 🧑, AI-proposed ideas
+  💡. Click a node's `+N` to expand its sub-ideas.
+- **Click a node** → a side drawer reveals the full **prompt** and **what the AI
+  did**: its answer (rendered markdown + code), files changed, unified diff
+  (red/green), and the correlated git commits.
+- **Search** (top) filters the tree to matching ideas/prompts/code and their
+  ancestors.
 
 All prompt/response content is HTML-escaped before rendering (prompts can
 contain arbitrary HTML/JS), and links are restricted to `http(s)/mailto/relative`.
+The tree layout and click-to-detail follow the canonical
+[D3 collapsible-tree](https://observablehq.com/@d3/collapsible-tree) pattern,
+implemented in self-contained SVG (no CDN).
 
 ## Run it as a command
 
@@ -170,19 +198,20 @@ sharing.
 ## Project layout
 
 ```
-ai-devlog.mjs        CLI (auto / discover / scan-git / import / export / demo)
+ai-devlog.mjs        CLI (auto / discover / scan-git / summarize / import / export / demo)
 lib/discover.mjs     find local Claude Code + Codex sessions
 lib/git.mjs          read git commits/diffs for correlation
+lib/summarize.mjs    optional LLM idea labels + AI-proposed ideas (Claude API)
 lib/parsers.mjs      source → normalized messages
-lib/tree.mjs         messages → decision tree (+ branch & commit correlation)
+lib/tree.mjs         messages → idea tree (intent classify, nest, commit correlation)
 lib/exporter.mjs     tree → single self-contained HTML
 lib/sample.mjs       demo data
-template/            index.html · style.css · app.js (inlined on export)
-test/dom-smoke.mjs   headless render smoke test
+template/            index.html · style.css · app.js (SVG tree canvas; inlined on export)
+test/dom-smoke.mjs   headless render + click→drawer smoke test
 ```
 
 ## Roadmap
 
-Cursor SQLite reader · AI summarization layer (idea/decision extraction) ·
+Cursor SQLite reader · richer LLM clustering of ideas into themes ·
 lazy-rendered tree for very large histories · MCP server exposing the history
 as queryable resources.

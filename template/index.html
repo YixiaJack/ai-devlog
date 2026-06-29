@@ -3,32 +3,30 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AI Devlog</title>
+  <title>AI Devlog · idea tree</title>
   <style>/*__STYLE__*/</style>
 </head>
 <body>
-  <div class="app">
-    <header>
+  <div id="app">
+    <header class="topbar">
       <div class="brand"><span class="dot"></span><span id="proj-name">AI Devlog</span></div>
       <div class="sub" id="proj-sub"></div>
       <div class="spacer"></div>
       <div class="stats" id="stats"></div>
-      <input id="search" type="search" placeholder="Search prompts, ideas, code…" />
+      <input id="search" type="search" placeholder="Search ideas, prompts, code…" />
+      <button id="reset">Reset view</button>
     </header>
-    <div class="main">
-      <aside class="col left">
-        <div class="filter-group">
-          <h4>Node type</h4>
-          <div id="f-types"></div>
-        </div>
-        <div class="filter-group">
-          <h4>Source</h4>
-          <div id="f-sources"></div>
-        </div>
-      </aside>
-      <section class="col center" id="tree"></section>
-      <section class="col right" id="detail"></section>
-    </div>
+    <svg id="canvas">
+      <g id="viewport">
+        <g id="links"></g>
+        <g id="nodes"></g>
+      </g>
+    </svg>
+    <div class="legend" id="legend"></div>
+    <aside class="drawer" id="drawer">
+      <button id="drawer-close" title="Close">×</button>
+      <div id="drawer-body"></div>
+    </aside>
   </div>
   <script id="devlog-data" type="application/json">/*__DATA__*/</script>
   <script>/*__APP__*/</script>
