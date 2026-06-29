@@ -1,0 +1,13 @@
+# dependencies
+node_modules/
+
+# local devlog store (created by `init`/`import`)
+.ai-devlog/
+
+# generated export output (reproduce with `node ai-devlog.mjs demo`)
+ai-history-export/
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.log

@@ -1,0 +1,13 @@
+{
+  "name": "ai-devlog",
+  "version": "0.1.0",
+  "description": "Turn AI coding chats (IDE/CLI/Web) into an auditable decision tree as a clean static HTML document.",
+  "type": "module",
+  "bin": {
+    "ai-devlog": "./ai-devlog.mjs"
+  },
+  "scripts": {
+    "demo": "node ai-devlog.mjs demo"
+  },
+  "license": "MIT"
+}
