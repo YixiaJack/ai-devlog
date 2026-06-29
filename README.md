@@ -10,6 +10,7 @@ interactive, self‑contained HTML map of *what you built and why*.
 
 <br/>
 
+[![npm](https://img.shields.io/npm/v/ai-devlog?color=cb3837&logo=npm)](https://www.npmjs.com/package/ai-devlog)
 [![Node ≥18](https://img.shields.io/badge/node-%E2%89%A518-43853d?logo=node.js&logoColor=white)](https://nodejs.org)
 [![Dependencies](https://img.shields.io/badge/dependencies-0-2563eb)](#)
 [![Output](https://img.shields.io/badge/output-single%20HTML%20%C2%B7%20offline-7c3aed)](#-what-you-get)
@@ -52,15 +53,15 @@ No install, no API key — just Node 18+.
 
 ```bash
 # see it instantly with sample data
-npx github:YixiaJack/ai-devlog demo
+npx ai-devlog demo
 # → opens ai-history-export/index.html
 
 # …or on YOUR project: discover sessions + correlate git + LLM-organize, in one go
 cd /path/to/your/project
-npx github:YixiaJack/ai-devlog auto --git --summarize
+npx ai-devlog auto --git --summarize
 ```
 
-<sub>Prefer a clone? `git clone https://github.com/YixiaJack/ai-devlog && node ai-devlog/ai-devlog.mjs demo`</sub>
+<sub>Or install it: `npm install -g ai-devlog` → then run `ai-devlog` anywhere.</sub>
 
 ## 🎨 What you get
 
@@ -151,9 +152,9 @@ text to your own Claude subscription. Redact secrets before sharing an export.
 ## 🛠️ Run it as a command
 
 ```bash
-npx github:YixiaJack/ai-devlog auto   # straight from GitHub, no clone
-# or install globally from a clone:
-cd ai-devlog && npm install -g . && ai-devlog auto
+npm install -g ai-devlog     # then: ai-devlog auto
+# or no install at all:
+npx ai-devlog auto
 ```
 
 ## 🗺️ Roadmap

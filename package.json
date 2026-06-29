@@ -1,13 +1,46 @@
 {
   "name": "ai-devlog",
   "version": "0.1.0",
-  "description": "Turn AI coding chats (IDE/CLI/Web) into an auditable decision tree as a clean static HTML document.",
+  "description": "Turn your AI coding chats (Claude Code, Codex, …) into an interactive radial idea tree — a single offline HTML you can search, export, and share.",
   "type": "module",
   "bin": {
-    "ai-devlog": "./ai-devlog.mjs"
+    "ai-devlog": "ai-devlog.mjs"
+  },
+  "files": [
+    "ai-devlog.mjs",
+    "lib",
+    "template",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
   },
   "scripts": {
-    "demo": "node ai-devlog.mjs demo"
+    "demo": "node ai-devlog.mjs demo",
+    "test": "node test/dom-smoke.mjs"
   },
+  "keywords": [
+    "ai",
+    "claude-code",
+    "codex",
+    "ai-coding",
+    "developer-tools",
+    "visualization",
+    "mind-map",
+    "idea-tree",
+    "cli",
+    "llm",
+    "chat-history"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YixiaJack/ai-devlog.git"
+  },
+  "homepage": "https://github.com/YixiaJack/ai-devlog#readme",
+  "bugs": {
+    "url": "https://github.com/YixiaJack/ai-devlog/issues"
+  },
+  "author": "YixiaJack",
   "license": "MIT"
 }
