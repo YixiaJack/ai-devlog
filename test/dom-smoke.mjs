@@ -43,6 +43,7 @@ const document = {
   getElementById: (id) => reg[id] || makeEl('div'),
   createElement: (t) => makeEl(t),
   createElementNS: (_ns, t) => makeEl(t),
+  addEventListener: () => {},
 };
 const sandbox = { document, JSON, Date, RegExp, console, Array, Object, Math, String, Set, Infinity, isNaN, Number };
 sandbox.window = sandbox;

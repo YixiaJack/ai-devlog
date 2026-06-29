@@ -18,9 +18,9 @@ interactive, self‑contained HTML map of *what you built and why*.
 
 <br/>
 
-<img src="docs/hero.svg" alt="ai-devlog radial idea tree" width="820"/>
+<img src="docs/screenshot.svg" alt="ai-devlog — radial idea tree with detail drawer" width="900"/>
 
-<sub>Project at the center → a few categories → ideas → sub‑ideas & 💡 AI insights. Click any node for the full prompt and what the AI did.</sub>
+<sub>Project at the center → categories → ideas → 💡 AI insights. Click any node for the full prompt, what the AI did, the diff, and the commit. Export to Markdown/JSON, switch EN ⇄ 中, light/dark.</sub>
 
 </div>
 
@@ -43,6 +43,7 @@ into a tree you can actually navigate.
 - 🔗 **Git‑correlated** — folds the real commit + diff into the idea it belongs to.
 - 🌳 **Radial canvas** — pan/zoom mind‑map that fans out in every direction.
 - 🌏 **Bilingual** (EN ⇄ 中) and 🌙 **light/dark**, one click each.
+- ⬇ **Export** the whole tree to **Markdown** or JSON.
 - 📦 **One file, zero deps, offline** — share an `index.html`, open it anywhere. Nothing is uploaded.
 
 ## 🚀 Quick start

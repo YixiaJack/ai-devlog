@@ -327,6 +327,54 @@
   });
   setLangLabel();
 
+  // ---------- export ----------
+  function slug(s) { return (s || 'ai-devlog').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'ai-devlog'; }
+  function oneLine(s) { return String(s || '').replace(/\s+/g, ' ').trim(); }
+  function toMarkdown() {
+    var out = ['# ' + (tree.title || 'AI Devlog')];
+    if (tree.summary) out.push('', '> ' + tree.summary);
+    out.push('');
+    (function walk(n, depth) {
+      (n._allKids || n.children || []).forEach(function (c) {
+        var ind = '  '.repeat(Math.max(0, depth));
+        var lab = labelFor(c), d = c.detail || {};
+        if (c.type === 'category') { out.push('', '## ' + lab, ''); walk(c, 0); }
+        else if (c.type === 'ai-idea') { out.push(ind + '- 💡 ' + lab); }
+        else if (c.type === 'commits') {
+          out.push('', '## ' + lab, '');
+          (d.unlinkedCommits || []).forEach(function (cc) { out.push('- `' + (cc.short || cc) + '` ' + (cc.subject || '')); });
+        } else {
+          out.push(ind + '- **' + lab + '**' + (c.meta && c.meta.intent ? '  _(' + c.meta.intent + ')_' : ''));
+          if (d.prompt) out.push(ind + '  - prompt: ' + oneLine(d.prompt).slice(0, 240));
+          if (d.files && d.files.length) out.push(ind + '  - files: ' + d.files.join(', '));
+          if (d.commits && d.commits.length) out.push(ind + '  - commits: ' + d.commits.map(function (x) { return x.short || x; }).join(', '));
+          walk(c, depth + 1);
+        }
+      });
+    })(tree, 0);
+    return out.join('\n') + '\n';
+  }
+  function download(name, text, mime) {
+    var blob = new Blob([text], { type: mime || 'text/plain;charset=utf-8' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); if (a.parentNode) a.parentNode.removeChild(a); }, 200);
+  }
+  function doExport(fmt) {
+    var base = slug(tree.title);
+    if (fmt === 'json') download(base + '.json', JSON.stringify(DATA, null, 2), 'application/json');
+    else download(base + '.md', toMarkdown(), 'text/markdown;charset=utf-8');
+  }
+  var exportBtn = document.getElementById('export');
+  var exportMenu = document.getElementById('export-menu');
+  exportBtn.addEventListener('click', function (e) { e.stopPropagation(); exportMenu.hidden = !exportMenu.hidden; });
+  exportMenu.addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-fmt]');
+    if (b) { doExport(b.getAttribute('data-fmt')); exportMenu.hidden = true; }
+  });
+  document.addEventListener('click', function () { exportMenu.hidden = true; });
+
   // ---------- light / dark ----------
   var themeBtn = document.getElementById('theme');
   themeBtn.addEventListener('click', function () {

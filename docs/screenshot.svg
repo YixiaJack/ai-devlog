@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 600" font-family="-apple-system, Segoe UI, Roboto, PingFang SC, sans-serif">
+  <defs>
+    <pattern id="g" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="#e7ebf0"/></pattern>
+    <style>
+      .t{fill:#1f2329} .m{fill:#6b7280} .w{fill:#fff}
+      .pill{fill:#fff;stroke:#e3e6ea} .lk{stroke:#c7ccd4;stroke-width:1.5;fill:none}
+      .cat{font-size:12.5px;font-weight:700;fill:#3730a3}
+      .lbl{font-size:12px;fill:#1f2329}
+      .btn{fill:#f4f6f9;stroke:#e3e6ea}
+      .bt{font-size:12px;fill:#1f2329}
+      .sec{font-size:10.5px;letter-spacing:.5px;fill:#6b7280}
+      .mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px}
+    </style>
+  </defs>
+
+  <rect width="1100" height="600" fill="#f4f6f9"/>
+
+  <!-- canvas (radial tree area) -->
+  <rect x="0" y="46" width="730" height="554" fill="#f4f6f9"/>
+  <rect x="0" y="46" width="730" height="554" fill="url(#g)"/>
+  <g class="lk">
+    <line x1="345" y1="330" x2="345" y2="210"/>
+    <line x1="345" y1="330" x2="180" y2="250"/>
+    <line x1="345" y1="330" x2="180" y2="430"/>
+    <line x1="345" y1="330" x2="345" y2="470"/>
+    <line x1="345" y1="330" x2="520" y2="430"/>
+    <line x1="345" y1="330" x2="520" y2="250"/>
+    <line x1="520" y1="250" x2="640" y2="205"/>
+    <line x1="520" y1="250" x2="648" y2="300"/>
+    <line x1="648" y1="300" x2="650" y2="360"/>
+  </g>
+  <!-- center -->
+  <rect x="288" y="312" width="114" height="36" rx="10" fill="#2b3445"/>
+  <text x="345" y="335" text-anchor="middle" font-size="13" font-weight="700" class="w">● acme-web</text>
+  <!-- categories -->
+  <g><rect class="pill" x="290" y="194" width="110" height="30" rx="8"/><rect x="290" y="194" width="4" height="30" rx="2" fill="#4f46e5"/><text x="306" y="213" class="cat">Features</text></g>
+  <g><rect class="pill" x="110" y="235" width="120" height="30" rx="8"/><rect x="110" y="235" width="4" height="30" rx="2" fill="#4f46e5"/><text x="126" y="254" class="cat">Deployment</text></g>
+  <g><rect class="pill" x="462" y="235" width="116" height="30" rx="8"/><rect x="462" y="235" width="4" height="30" rx="2" fill="#4f46e5"/><text x="478" y="254" class="cat">Security</text></g>
+  <g><rect class="pill" x="110" y="415" width="116" height="30" rx="8"/><rect x="110" y="415" width="4" height="30" rx="2" fill="#4f46e5"/><text x="126" y="434" class="cat">Bug Fixes</text></g>
+  <g><rect class="pill" x="462" y="415" width="120" height="30" rx="8"/><rect x="462" y="415" width="4" height="30" rx="2" fill="#4f46e5"/><text x="478" y="434" class="cat">Marketing</text></g>
+  <g><rect class="pill" x="292" y="455" width="106" height="30" rx="8"/><rect x="292" y="455" width="4" height="30" rx="2" fill="#4f46e5"/><text x="308" y="474" class="cat">Data</text></g>
+  <!-- ideas off Security; one selected -->
+  <g><rect x="568" y="190" width="158" height="30" rx="8" fill="#fff" stroke="#2563eb" stroke-width="2"/><rect x="568" y="190" width="4" height="30" rx="2" fill="#2563eb"/><text x="584" y="209" class="lbl">Refresh-token rotation</text></g>
+  <g><rect class="pill" x="576" y="285" width="150" height="30" rx="8"/><rect x="576" y="285" width="4" height="30" rx="2" fill="#dc2626"/><text x="592" y="304" class="lbl">Salted token hashes</text></g>
+  <g><rect class="pill" x="572" y="345" width="156" height="28" rx="8"/><rect x="572" y="345" width="4" height="28" rx="2" fill="#7c3aed"/><text x="586" y="363" font-size="11.5" fill="#5b21b6">💡 header auth &gt; query string</text></g>
+
+  <!-- top bar -->
+  <rect x="0" y="0" width="1100" height="46" fill="#fff"/>
+  <line x1="0" y1="46" x2="1100" y2="46" stroke="#e3e6ea"/>
+  <text x="20" y="29" font-size="15" font-weight="700" class="t">🌳 acme-web</text>
+  <text x="150" y="29" font-size="12" class="m">9 categories · 79 ideas · 88 insights</text>
+  <rect class="pill" x="556" y="11" width="150" height="24" rx="6"/><text x="568" y="27" font-size="11.5" class="m">Search ideas, code…</text>
+  <rect class="btn" x="716" y="11" width="78" height="24" rx="6"/><text x="726" y="27" class="bt">⬇ Export</text>
+  <rect class="btn" x="800" y="11" width="34" height="24" rx="6"/><text x="811" y="27" class="bt">🌙</text>
+  <rect class="btn" x="840" y="11" width="40" height="24" rx="6"/><text x="852" y="27" class="bt">EN</text>
+  <rect class="btn" x="886" y="11" width="86" height="24" rx="6"/><text x="897" y="27" class="bt">Reset view</text>
+
+  <!-- detail drawer -->
+  <rect x="730" y="46" width="370" height="554" fill="#fff"/>
+  <line x1="730" y1="46" x2="730" y2="600" stroke="#e3e6ea"/>
+  <text x="754" y="84" font-size="11" font-weight="700" letter-spacing="0.5" fill="#2563eb">GOAL</text>
+  <text x="754" y="108" font-size="17" font-weight="700" class="t">Refresh-token rotation</text>
+  <!-- chips -->
+  <g font-size="11" fill="#6b7280">
+    <rect x="754" y="122" width="104" height="20" rx="10" fill="#f4f6f9" stroke="#e3e6ea"/><text x="764" y="136">source claude-code</text>
+    <rect x="866" y="122" width="92" height="20" rx="10" fill="#f4f6f9" stroke="#e3e6ea"/><text x="876" y="136">status committed</text>
+  </g>
+  <!-- prompt card -->
+  <rect x="754" y="158" width="322" height="74" rx="8" fill="#eef4ff" stroke="#dbe4ff"/>
+  <rect x="754" y="158" width="3" height="74" fill="#2563eb"/>
+  <text x="768" y="178" class="sec" fill="#2563eb">USER PROMPT</text>
+  <text x="768" y="198" class="lbl">Keep users logged in without storing</text>
+  <text x="768" y="214" class="lbl">long-lived JWTs — add a refresh-token flow.</text>
+  <!-- AI did -->
+  <text x="754" y="258" class="sec">🤖 WHAT THE AI DID</text>
+  <text x="754" y="278" class="lbl">Added issueTokens() and the /auth/refresh</text>
+  <text x="754" y="294" class="lbl">endpoint with rotation + reuse detection.</text>
+  <!-- diff -->
+  <text x="754" y="324" class="sec">DIFF</text>
+  <rect x="754" y="332" width="322" height="70" rx="8" fill="#fff" stroke="#e3e6ea"/>
+  <rect x="754" y="332" width="322" height="22" fill="#ffebe9"/>
+  <text x="764" y="347" class="mono" fill="#cf222e">- const t = signJwt(uid, '7d')</text>
+  <rect x="754" y="354" width="322" height="22" fill="#e6ffec"/>
+  <text x="764" y="369" class="mono" fill="#1f883d">+ const {access,refresh} = issueTokens()</text>
+  <text x="764" y="391" class="mono" fill="#1f2329">  res.cookie('rt', refresh, …)</text>
+  <!-- commits -->
+  <text x="754" y="430" class="sec">COMMITS</text>
+  <text x="754" y="450" class="mono" fill="#0891b2">a1b2c3d</text><text x="812" y="450" class="lbl">add refresh-token flow</text>
+</svg>
