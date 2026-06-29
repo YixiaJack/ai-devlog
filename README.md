@@ -53,10 +53,11 @@ prompt's first line — which stays shallow. With the LLM step, the model
 **classifies** the whole project into 3–7 **categories**, then nests each idea
 under the earlier idea it relates to **across conversations and time** (e.g.
 founder-contact, homepage copy, and slides all land under a "Marketing"
-category), gives each a concise title, and extracts the **genuine design
-decisions / insights the AI introduced** (💡 their own nodes) — using an
-explicit include/exclude codebook so it captures real ideas (e.g. "header auth
-instead of query string"), not execution steps or metrics.
+category), gives each a concise **bilingual (EN + 中) title phrased as an idea**
+(not a command), and extracts the **genuine design decisions / insights the AI
+introduced** (💡 their own nodes) — using an explicit include/exclude codebook
+so it captures real ideas (e.g. "header auth instead of query string"), not
+execution steps or metrics.
 
 ```bash
 node ai-devlog.mjs auto --git --summarize          # discover + git + LLM arrangement, one shot
@@ -161,8 +162,10 @@ inlined) plus `data/devlog.json` for reuse. The page works offline via
 `file://` — nothing is uploaded. The whole UI is the **idea tree**:
 
 - **Canvas** — a pan/zoom node-link tree (drag to pan, scroll to zoom). Nodes
-  are color-coded ideas; user-originated ideas are marked 🧑, AI-proposed ideas
-  💡. Click a node's `+N` to expand its sub-ideas.
+  are color-coded ideas; user-originated ideas are marked 🧑, AI insights 💡.
+  Click a node's `+N` to expand its sub-ideas.
+- **Language toggle** (EN ↔ 中) — every idea, category and insight is labeled in
+  both English and Chinese, so the whole tree switches language in one click.
 - **Click a node** → a side drawer reveals the full **prompt** and **what the AI
   did**: its answer (rendered markdown + code), files changed, unified diff
   (red/green), and the correlated git commits.

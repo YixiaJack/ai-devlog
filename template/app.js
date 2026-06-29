@@ -79,12 +79,17 @@
   function searchText(n) {
     if (n._s != null) return n._s;
     var d = n.detail || {};
-    n._s = ((n.title || '') + ' ' + (d.prompt || '') + ' ' + (d.response || '') + ' ' + n.type).toLowerCase();
+    n._s = ((n.title || '') + ' ' + (n.titleEn || '') + ' ' + (n.titleZh || '') + ' ' +
+      (d.prompt || '') + ' ' + (d.response || '') + ' ' + n.type).toLowerCase();
     return n._s;
   }
 
   // ---------- state ----------
   var tx = 60, ty = 60, scale = 0.9, selectedId = null, query = '', showSet = null;
+  var lang = 'zh'; // 'zh' | 'en'
+  function labelFor(n) {
+    return (lang === 'zh' ? (n.titleZh || n.titleEn) : (n.titleEn || n.titleZh)) || n.title || n.type;
+  }
 
   var canvas = document.getElementById('canvas');
   var viewport = document.getElementById('viewport');
@@ -149,7 +154,7 @@
       fo.innerHTML =
         '<div class="' + cls + '" data-id="' + n.id + '">' +
           '<span class="dot"></span>' +
-          '<div class="label">' + (isUser ? '🧑 ' : (n.type === 'ai-idea' ? '💡 ' : '')) + esc(n.title || n.type) + '</div>' +
+          '<div class="label">' + (isUser ? '🧑 ' : (n.type === 'ai-idea' ? '💡 ' : '')) + esc(labelFor(n)) + '</div>' +
           '<div class="badges"><span class="kind">' + esc(KIND[n.type] || n.type) + '</span>' + toggle + '</div>' +
         '</div>';
       nodesG.appendChild(fo);
@@ -216,7 +221,7 @@
     var d = n.detail || {}, m = n.meta || {};
     var h = '<div class="t-' + n.type + '">';
     h += '<div class="d-kind">' + esc(KIND[n.type] || n.type) + '</div>';
-    h += '<div class="d-title">' + (TURN[n.type] ? '🧑 ' : n.type === 'ai-idea' ? '💡 ' : '') + esc(n.title || n.type) + '</div>';
+    h += '<div class="d-title">' + (TURN[n.type] ? '🧑 ' : n.type === 'ai-idea' ? '💡 ' : '') + esc(labelFor(n)) + '</div>';
     h += '<div class="chips">' +
       chip('source', m.source) + chip('model', m.model) + chip('status', m.status) +
       chip('branch', m.branch) + chip('files', d.files) + chip('commits', d.commits) +
@@ -292,6 +297,17 @@
   }).join('') + '<span class="item hint">drag to pan · scroll to zoom · click a node</span>';
 
   document.getElementById('reset').addEventListener('click', function () { render(); fitView(); });
+
+  // ---------- language toggle ----------
+  var langBtn = document.getElementById('lang');
+  function setLangLabel() { langBtn.textContent = lang === 'zh' ? 'EN' : '中文'; }
+  langBtn.addEventListener('click', function () {
+    lang = lang === 'zh' ? 'en' : 'zh';
+    setLangLabel();
+    render();
+    if (selectedId) select(selectedId);
+  });
+  setLangLabel();
 
   // ---------- go ----------
   render(); fitView();
