@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 470" font-family="-apple-system, Segoe UI, Roboto, PingFang SC, sans-serif">
+  <defs>
+    <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r="1" fill="#e7ebf0"/>
+    </pattern>
+    <style>
+      .lbl{font-size:13px;fill:#1f2329}
+      .cat{font-size:13px;font-weight:700;fill:#3730a3}
+      .ins{font-size:12.5px;fill:#5b21b6}
+      .ctr{font-size:15px;font-weight:700;fill:#fff}
+      .pill{fill:#fff;stroke:#e3e6ea}
+      .link{stroke:#c7ccd4;stroke-width:1.5;fill:none}
+    </style>
+  </defs>
+
+  <rect width="980" height="470" fill="#f4f6f9"/>
+  <rect width="980" height="470" fill="url(#dots)"/>
+
+  <!-- links -->
+  <g class="link">
+    <line x1="480" y1="250" x2="480" y2="104"/>
+    <line x1="480" y1="250" x2="220" y2="184"/>
+    <line x1="480" y1="250" x2="740" y2="184"/>
+    <line x1="480" y1="250" x2="220" y2="384"/>
+    <line x1="480" y1="250" x2="740" y2="384"/>
+    <line x1="480" y1="250" x2="480" y2="430"/>
+    <line x1="740" y1="184" x2="888" y2="118"/>
+    <line x1="740" y1="184" x2="888" y2="228"/>
+    <line x1="888" y1="228" x2="892" y2="300"/>
+    <line x1="480" y1="430" x2="430" y2="450"/>
+  </g>
+
+  <!-- center project -->
+  <g>
+    <rect x="405" y="228" width="150" height="44" rx="11" fill="#2b3445"/>
+    <text x="480" y="255" text-anchor="middle" class="ctr">● acme-web</text>
+  </g>
+
+  <!-- category node helper drawn inline -->
+  <!-- Features (top) -->
+  <g><rect class="pill" x="410" y="70" width="140" height="34" rx="9"/><rect x="410" y="70" width="4" height="34" rx="2" fill="#4f46e5"/><circle cx="426" cy="87" r="4" fill="#4f46e5"/><text x="438" y="91" class="cat">Features</text></g>
+  <!-- Deployment -->
+  <g><rect class="pill" x="148" y="150" width="148" height="34" rx="9"/><rect x="148" y="150" width="4" height="34" rx="2" fill="#4f46e5"/><circle cx="164" cy="167" r="4" fill="#4f46e5"/><text x="176" y="171" class="cat">Deployment</text></g>
+  <!-- Security -->
+  <g><rect class="pill" x="668" y="150" width="144" height="34" rx="9"/><rect x="668" y="150" width="4" height="34" rx="2" fill="#4f46e5"/><circle cx="684" cy="167" r="4" fill="#4f46e5"/><text x="696" y="171" class="cat">Security</text></g>
+  <!-- Bugs -->
+  <g><rect class="pill" x="148" y="350" width="144" height="34" rx="9"/><rect x="148" y="350" width="4" height="34" rx="2" fill="#4f46e5"/><circle cx="164" cy="367" r="4" fill="#4f46e5"/><text x="176" y="371" class="cat">Bug Fixes</text></g>
+  <!-- Data and Cost -->
+  <g><rect class="pill" x="668" y="350" width="148" height="34" rx="9"/><rect x="668" y="350" width="4" height="34" rx="2" fill="#4f46e5"/><circle cx="684" cy="367" r="4" fill="#4f46e5"/><text x="696" y="371" class="cat">Data &amp; Cost</text></g>
+  <!-- Marketing -->
+  <g><rect class="pill" x="412" y="413" width="136" height="34" rx="9"/><rect x="412" y="413" width="4" height="34" rx="2" fill="#4f46e5"/><circle cx="428" cy="430" r="4" fill="#4f46e5"/><text x="440" y="434" class="cat">Marketing</text></g>
+
+  <!-- ideas off Security -->
+  <g><rect class="pill" x="800" y="100" width="176" height="32" rx="9"/><rect x="800" y="100" width="4" height="32" rx="2" fill="#2563eb"/><circle cx="816" cy="116" r="4" fill="#2563eb"/><text x="828" y="120" class="lbl">Refresh-token rotation</text></g>
+  <g><rect class="pill" x="800" y="210" width="176" height="32" rx="9"/><rect x="800" y="210" width="4" height="32" rx="2" fill="#2563eb"/><circle cx="816" cy="226" r="4" fill="#2563eb"/><text x="828" y="230" class="lbl">Salted token hashes</text></g>
+
+  <!-- AI insight -->
+  <g><rect class="pill" x="804" y="284" width="172" height="32" rx="9"/><rect x="804" y="284" width="4" height="32" rx="2" fill="#7c3aed"/><text x="816" y="304" class="ins">💡 header auth &gt; query string</text></g>
+</svg>
