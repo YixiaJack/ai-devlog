@@ -13,7 +13,7 @@
   --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
 
   --t-root: #334155;
-  --t-session: #6366f1;
+  --t-commits: #57606a;
   --t-idea: #2563eb;
   --t-refine: #3b82f6;
   --t-question: #d97706;
@@ -84,7 +84,7 @@ body { font-family: var(--sans); color: var(--text); background: var(--bg); font
 .toggle:hover { border-color: var(--accent); color: var(--accent); }
 
 /* type colors via --c */
-.t-root { --c: var(--t-root); } .t-session { --c: var(--t-session); }
+.t-root { --c: var(--t-root); } .t-commits { --c: var(--t-commits); }
 .t-idea { --c: var(--t-idea); } .t-refine { --c: var(--t-refine); }
 .t-question { --c: var(--t-question); } .t-fix { --c: var(--t-fix); }
 .t-decision { --c: var(--t-decision); } .t-verification { --c: var(--t-verification); }

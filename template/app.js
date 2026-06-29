@@ -114,7 +114,7 @@
   }
 
   // ---------- render ----------
-  var KIND = { root: 'project', session: 'session', idea: 'goal', refine: 'refine', fix: 'fix',
+  var KIND = { root: 'project', commits: 'commits', idea: 'goal', refine: 'refine', fix: 'fix',
     question: 'question', decision: 'pivot', verification: 'test', 'ai-idea': 'ai idea' };
 
   function render() {
@@ -224,12 +224,9 @@
     if (n.type === 'ai-idea') {
       h += '<p class="empty-hint">An idea the AI proposed while working on “' + esc(d.context || '') + '”.</p>';
     }
-    if (n.type === 'session') {
+    if (n.type === 'commits' && d.unlinkedCommits) {
       h += '<p class="empty-hint">' + esc(n.summary || '') + '</p>';
-      if (d.unlinkedCommits) {
-        h += '<div class="section">Commits</div>';
-        h += d.unlinkedCommits.map(commitRow).join('');
-      }
+      h += '<div class="section">Commits</div>' + d.unlinkedCommits.map(commitRow).join('');
     }
     if (d.prompt && d.prompt.trim()) {
       h += '<div class="prompt-card"><div class="head">🧑 User prompt</div><div class="md">' + markdown(d.prompt) + '</div></div>';
@@ -244,7 +241,7 @@
     if (d.commits && d.commits.length) {
       h += '<div class="section">Commits</div>' + d.commits.map(commitRow).join('');
     }
-    if (!d.prompt && !d.response && n.type !== 'session' && n.type !== 'ai-idea') {
+    if (!d.prompt && !d.response && n.type !== 'commits' && n.type !== 'ai-idea') {
       h += '<p class="empty-hint">' + ((n.children || []).length) + ' child idea(s).</p>';
     }
     h += '</div>';
@@ -278,9 +275,9 @@
   var t = stats.types || {};
   function ideaCount() { return (t.idea || 0) + (t.refine || 0) + (t.fix || 0) + (t.question || 0) + (t.decision || 0) + (t.verification || 0); }
   document.getElementById('stats').innerHTML =
-    '<span><b>' + (t.session || 0) + '</b> sessions</span>' +
     '<span><b>' + ideaCount() + '</b> ideas</span>' +
-    '<span><b>' + (t['ai-idea'] || 0) + '</b> AI ideas</span>';
+    '<span><b>' + (t['ai-idea'] || 0) + '</b> AI ideas</span>' +
+    '<span><b>' + Object.keys(stats.sources || {}).length + '</b> sources</span>';
 
   var legend = document.getElementById('legend');
   var LG = [['idea', 'goal'], ['refine', 'refine'], ['fix', 'fix'], ['question', 'question'],

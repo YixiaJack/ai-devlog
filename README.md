@@ -48,24 +48,26 @@ node /path/to/ai-devlog.mjs auto --project C:/code/my-app --out ./report
 
 ## LLM idea hierarchy (optional, uses your Claude subscription)
 
-Without an LLM, ideas nest by a keyword heuristic (goal → its refinements) and
-labels come from the prompt's first line — which stays shallow. With the LLM
-step, the model organizes each session into a **deep idea tree**: it picks each
-idea's *parent*, so ideas nest under one another (a fix under the idea it fixes,
-a question under a verification under a goal), gives each a concise title, and
-extracts **ideas the AI proposed** (💡 their own nodes).
+Without an LLM, ideas nest by a keyword heuristic and labels come from the
+prompt's first line — which stays shallow. With the LLM step, the model
+arranges the **whole project's** ideas (in time order) into **one tree**: it
+picks each idea's *parent* by meaning, so related ideas nest under one another
+**even across different conversations and times** (e.g. founder-contact,
+homepage copy, and slides all land under one "marketing" theme), gives each a
+concise title, and extracts **ideas the AI proposed** (💡 their own nodes).
 
 ```bash
-node ai-devlog.mjs auto --git --summarize          # discover + git + LLM hierarchy, one shot
+node ai-devlog.mjs auto --git --summarize          # discover + git + LLM arrangement, one shot
 # or on an existing store:
-node ai-devlog.mjs summarize                        # all sessions
+node ai-devlog.mjs summarize                        # arrange the whole project
+node ai-devlog.mjs summarize --refresh              # re-arrange from scratch
 node ai-devlog.mjs export
 ```
 
 It drives the headless **Claude Code CLI** (`claude -p`) — your existing
 subscription, **no API key, no SDK**, still dependency-free. Default model is
-`haiku` (cheap for bulk); override with `--model`. Results cache in the store so
-re-runs only label new sessions. This is the only step that sends data off your
+`haiku` (cheap for bulk); override with `--model`. Processed in time-ordered
+chunks and cached in the store. This is the only step that sends data off your
 machine — everything else is local.
 
 ## Correlate git commits (the "why" behind each diff)
@@ -132,19 +134,16 @@ reminders — not things you typed. ai-devlog filters all of that out (and drops
 Codex's `developer`/permissions instructions), so the prompt count reflects
 real interactions, not message spam.
 
-Each real prompt is then classified by its **role in developing an idea** —
-[IBIS](https://en.wikipedia.org/wiki/Issue-based_information_system)-inspired
-(Issue → Position → Argument):
+Each real prompt becomes one idea node, classified
+([IBIS](https://en.wikipedia.org/wiki/Issue-based_information_system)-inspired)
+as a `idea` (goal), `refine`, `fix`, `question`, `verification`, or `decision`
+(pivot); ideas the AI proposed become `ai-idea` nodes.
 
-| type | meaning | placement |
-|------|---------|-----------|
-| `idea` (goal) | introduces a feature/goal | starts a new thread |
-| `refine` | develops the current goal | nested under the goal |
-| `fix` | reports a problem (`bug`, `报错`, `broken`, …) | nested under the goal |
-| `question` | asks rather than directs (`why…?`, `为什么`) | nested under the goal |
-| `verification` | asks to test/build/lint | nested under the goal |
-| `decision` | a pivot (`instead`, `actually`, `换个方案`, `改成`) | **branches off** the previous turn |
-| `ai-idea` | an idea the AI proposed (LLM-extracted) | nested under the turn it came from |
+**Sessions are not a layer.** The whole project becomes **one tree** ordered by
+structure + time — ideas from different conversations interleave by when they
+happened and nest by what they relate to (not grouped by which chat they came
+from). Placement is LLM-decided when you run `summarize` (deep, cross-session),
+otherwise a chronological keyword heuristic.
 
 **The tree is ideas only.** Each idea node carries the full prompt and all the
 assistant work that followed it (merged into one answer + the files/diffs/commits)

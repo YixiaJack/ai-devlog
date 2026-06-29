@@ -106,6 +106,7 @@ try {
     case 'summarize': {
       const store = loadStore();
       if (!store.messages.length) { console.error('No messages. Import first.'); process.exit(1); }
+      if (f.refresh) { store.summaries = {}; console.log('Cleared existing summaries.'); }
       const model = f.model || DEFAULT_MODEL;
       console.log(`Summarizing ideas via the claude CLI (${model})…`);
       await summarize(store, { model, limit: f.limit ? Number(f.limit) : 0, log: (s) => console.log(s) });
