@@ -100,12 +100,30 @@ node ai-devlog.mjs export ./ai-history-export
 
 ## How the tree is built
 
-- Each **user turn** becomes an `idea` node holding its `prompt`, the AI
-  `response`, an `implementation` (files / code / diff), and any `commit`.
-- A prompt containing a **pivot phrase** (`instead`, `actually`, `rollback`,
-  `换个方案`, `改成`, `不要这样`, …) becomes a **`decision`** that branches off
-  the *previous* turn — so course-corrections are visible as real branches.
-- A prompt about tests/build/lint becomes a **`verification`** node.
+**Only genuine human prompts become nodes.** This matters: in a Claude Code
+session, the vast majority of `type:"user"` lines are *tool results*, IDE
+notifications (`<ide_opened_file>`), task notifications and injected system
+reminders — not things you typed. ai-devlog filters all of that out (and drops
+Codex's `developer`/permissions instructions), so the prompt count reflects
+real interactions, not message spam.
+
+Each real prompt is then classified by its **role in developing an idea** —
+[IBIS](https://en.wikipedia.org/wiki/Issue-based_information_system)-inspired
+(Issue → Position → Argument):
+
+| type | meaning | placement |
+|------|---------|-----------|
+| `idea` (goal) | introduces a feature/goal | starts a new thread |
+| `refine` | develops the current goal | nested under the goal |
+| `fix` | reports a problem (`bug`, `报错`, `broken`, …) | nested under the goal |
+| `question` | asks rather than directs (`why…?`, `为什么`) | nested under the goal |
+| `verification` | asks to test/build/lint | nested under the goal |
+| `decision` | a pivot (`instead`, `actually`, `换个方案`, `改成`) | **branches off** the previous turn |
+
+All the assistant work between two prompts is merged into **one** `response` +
+**one** `implementation` (files / code / diff), so a goal shows its own work
+*and* the follow-up refinements that developed it. With `--git`, the real
+commit + diff is attached too (see above).
 
 ## The HTML output
 
@@ -114,7 +132,8 @@ inlined) plus `data/devlog.json` for reuse. The page works offline via
 `file://` — nothing is uploaded.
 
 - **Left** — filter by node type and source.
-- **Center** — the collapsible decision tree, color-coded by node type.
+- **Center** — the collapsible idea-development tree, color-coded by node type;
+  user prompts are marked 🧑 and emphasized.
 - **Right** — full prompt / response (rendered markdown), code blocks, unified
   diff (red/green), files and commits.
 - **Top** — full-text search across prompts, ideas, and code.
