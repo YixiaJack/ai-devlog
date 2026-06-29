@@ -46,24 +46,27 @@ node /path/to/ai-devlog.mjs auto --project C:/code/my-app --out ./report
 `auto` matches sessions to your project by their recorded `cwd`. Web chats
 (ChatGPT / Claude web) have no local session file, so those stay manual upload.
 
-## LLM idea labels (optional)
+## LLM idea hierarchy (optional, uses your Claude subscription)
 
-By default, idea node labels come from a heuristic (the first line of the
-prompt). With an API key, an LLM rewrites each into a concise idea and also
-extracts **ideas the AI proposed** (which become their own nodes):
+Without an LLM, ideas nest by a keyword heuristic (goal → its refinements) and
+labels come from the prompt's first line — which stays shallow. With the LLM
+step, the model organizes each session into a **deep idea tree**: it picks each
+idea's *parent*, so ideas nest under one another (a fix under the idea it fixes,
+a question under a verification under a goal), gives each a concise title, and
+extracts **ideas the AI proposed** (💡 their own nodes).
 
 ```bash
-export ANTHROPIC_API_KEY=sk-ant-…
-node ai-devlog.mjs auto --git --summarize          # discover + git + LLM labels, one shot
+node ai-devlog.mjs auto --git --summarize          # discover + git + LLM hierarchy, one shot
 # or on an existing store:
-node ai-devlog.mjs summarize --model claude-haiku-4-5
+node ai-devlog.mjs summarize                        # all sessions
 node ai-devlog.mjs export
 ```
 
-Calls the Claude Messages API directly (no SDK, stays dependency-free), batched
-and cached in the store so re-runs only label new turns. Default model is Haiku
-(cheap for bulk summarizing); override with `--model`. This is the only step
-that sends data off your machine — everything else is local.
+It drives the headless **Claude Code CLI** (`claude -p`) — your existing
+subscription, **no API key, no SDK**, still dependency-free. Default model is
+`haiku` (cheap for bulk); override with `--model`. Results cache in the store so
+re-runs only label new sessions. This is the only step that sends data off your
+machine — everything else is local.
 
 ## Correlate git commits (the "why" behind each diff)
 
@@ -201,7 +204,7 @@ sharing.
 ai-devlog.mjs        CLI (auto / discover / scan-git / summarize / import / export / demo)
 lib/discover.mjs     find local Claude Code + Codex sessions
 lib/git.mjs          read git commits/diffs for correlation
-lib/summarize.mjs    optional LLM idea labels + AI-proposed ideas (Claude API)
+lib/summarize.mjs    optional LLM idea hierarchy + labels via the claude CLI
 lib/parsers.mjs      source → normalized messages
 lib/tree.mjs         messages → idea tree (intent classify, nest, commit correlation)
 lib/exporter.mjs     tree → single self-contained HTML

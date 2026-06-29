@@ -48,7 +48,7 @@ Usage:
   ai-devlog scan-git [--project <dir>] [--since <date>] [--window <hours>]
                                                attach git commits/diffs to turns by time
   ai-devlog summarize [--model <id>] [--limit N]
-                                               LLM idea labels + AI-proposed ideas (needs ANTHROPIC_API_KEY)
+                                               LLM idea hierarchy + labels via the claude CLI (no API key)
   ai-devlog init
   ai-devlog import --source <type> <file>     sources: ${KNOWN_SOURCES.join(', ')}
   ai-devlog build
@@ -106,13 +106,11 @@ try {
     case 'summarize': {
       const store = loadStore();
       if (!store.messages.length) { console.error('No messages. Import first.'); process.exit(1); }
-      const apiKey = process.env.ANTHROPIC_API_KEY;
-      if (!apiKey) { console.error('Set ANTHROPIC_API_KEY to use LLM summarization.'); process.exit(1); }
       const model = f.model || DEFAULT_MODEL;
-      console.log(`Summarizing with ${model}…`);
-      await summarize(store, { apiKey, model, limit: f.limit ? Number(f.limit) : 0, log: (s) => console.log(s) });
+      console.log(`Summarizing ideas via the claude CLI (${model})…`);
+      await summarize(store, { model, limit: f.limit ? Number(f.limit) : 0, log: (s) => console.log(s) });
       saveStore(store);
-      console.log(`Done. ${Object.keys(store.summaries).length} turns summarized. Run \`export\`.`);
+      console.log(`Done. ${Object.keys(store.summaries || {}).length} ideas labeled. Run \`export\`.`);
       break;
     }
     case 'export': {
@@ -169,9 +167,8 @@ try {
         } else gitMsg = ', (no git repo found)';
       }
       if (f.summarize) {
-        const apiKey = process.env.ANTHROPIC_API_KEY;
-        if (!apiKey) console.error('  --summarize ignored: ANTHROPIC_API_KEY not set');
-        else { console.log('  summarizing ideas with LLM…'); await summarize(store, { apiKey, model: f.model || DEFAULT_MODEL, log: (s) => console.log(s) }); }
+        console.log('  summarizing ideas via the claude CLI…');
+        await summarize(store, { model: f.model || DEFAULT_MODEL, log: (s) => console.log(s) });
       }
       saveStore(store);
       const payload = payloadFrom(store);
